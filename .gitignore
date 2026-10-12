@@ -22,5 +22,6 @@ htmlcov/
 # Notebooks
 notebooks/
 
-# 
-project-context.md
+# Dataset & Notes
+knowledge-base/
+Notes/
