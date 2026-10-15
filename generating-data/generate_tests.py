@@ -45,11 +45,14 @@ Guidelines:
 3. GROUNDED REFERENCE ANSWERS: Answers must be 100% faithful to the text chunk provided. Do NOT hallucinate external legal codes or fitness standards.
 4. PRECISE KEYWORDS: Keywords are retrieval signals. Pick distinctive entity names, section headers, statutory numbers, or specialized roles directly present in the snippet that a retriever must score high on.
 5. CATEGORIES:
-   - direct_fact: Explicit single-hop lookups (e.g., employee certification expiry, branch floor capacity).
+   - direct_fact: Explicit single-hop lookups.
    - spanning: Synthesis requiring multiple facts within the context.
    - temporal: Inquiries involving duration, tenure, notice periods, shift timings, or effective dates.
    - policy_procedural: Step-by-step resolution, onboarding, or escalation processes.
-   - compliance_conflict: Disciplinary, regulatory, contract conflict, or safety protocol enforcement."""
+   - compliance_conflict: Disciplinary, regulatory, contract conflict, or safety protocol enforcement.
+
+CRITICAL DISTRIBUTION RULE:
+Do NOT default to simple `direct_fact` questions just because a chunk contains structured data. You must actively extract complex scenarios to generate `spanning`, `policy_procedural`, and `compliance_conflict` questions."""
 
 # ==========================================
 # 3. Pipeline Core
@@ -102,7 +105,12 @@ Knowledge Base Context:
 {chunk_text}
 ---
 
-Generate {num_questions} varied, non-overlapping evaluation questions following the specified format."""
+Generate {num_questions} varied, non-overlapping evaluation questions following the specified format. 
+
+DISTRIBUTION REQUIREMENT FOR THIS BATCH:
+- You MUST force a balanced mix of categories.
+- Maximize the use of 'spanning', 'compliance_conflict', 'policy_procedural', and 'temporal'.
+- Limit 'direct_fact' questions to an absolute maximum of 1 out of every 3 questions generated. If you are generating 1 or 2 questions, try to make 0 of them 'direct_fact' if the text allows for a more complex question."""
 
         async with self.semaphore:
             try:
@@ -113,7 +121,7 @@ Generate {num_questions} varied, non-overlapping evaluation questions following 
                         {"role": "user", "content": user_prompt},
                     ],
                     response_format=QuestionBatch,
-                    temperature=0.3,
+                    temperature=0.4, # Slightly increased to encourage varied reasoning
                 )
                 return response.choices[0].message.parsed.items
             except Exception as e:
