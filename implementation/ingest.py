@@ -38,7 +38,11 @@ def fetch_documents():
 
 
 def create_chunks(documents):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        encoding_name="o200k_base", 
+        chunk_size=430, 
+        chunk_overlap=60
+    )
     chunks = text_splitter.split_documents(documents)
     return chunks
 
