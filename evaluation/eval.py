@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 from evaluation.test import TestQuestion, load_tests, TEST_FILE
 from implementation.answer import answer_question, fetch_context
 
+from langchain_core.messages import SystemMessage, HumanMessage
+from implementation.answer import llm, SYSTEM_PROMPT
+
 load_dotenv(override=True)
 
 MODEL = "gpt-4.1-nano"
@@ -241,6 +244,84 @@ def main():
         sys.exit(1)
 
     run_cli_evaluation(test_number)
+
+
+
+def evaluate_test_set_optimized(tests: list[TestQuestion], k: int = 10) -> list[dict]:
+    """
+    Evaluates both retrieval and answer quality for the entire test set in a single pass.
+    Fetches context once per question, eliminating duplicate vector database queries to reduce latency and cost.
+    """
+    results = []
+    total_tests = len(tests)
+    
+    for index, test in enumerate(tests):
+        print(f"Evaluating {index + 1}/{total_tests}...")
+        
+        # 1. Single Context Fetch
+        retrieved_docs = fetch_context(test.question)
+        
+        # 2. Retrieval Metrics Calculation
+        mrr_scores = [calculate_mrr(keyword, retrieved_docs) for keyword in test.keywords]
+        avg_mrr = sum(mrr_scores) / len(mrr_scores) if mrr_scores else 0.0
+        
+        ndcg_scores = [calculate_ndcg(keyword, retrieved_docs, k) for keyword in test.keywords]
+        avg_ndcg = sum(ndcg_scores) / len(ndcg_scores) if ndcg_scores else 0.0
+        
+        keywords_found = sum(1 for score in mrr_scores if score > 0)
+        total_keywords = len(test.keywords)
+        keyword_coverage = (keywords_found / total_keywords * 100) if total_keywords > 0 else 0.0
+        
+        # 3. Answer Generation (Using identical fetched context)
+        context_str = "\n\n".join(doc.page_content for doc in retrieved_docs)
+        system_prompt = SYSTEM_PROMPT.format(context=context_str)
+        messages = [
+            SystemMessage(content=system_prompt), 
+            HumanMessage(content=test.question)
+        ]
+        generated_answer = llm.invoke(messages).content
+        
+        # 4. Answer Evaluation (LLM-as-a-Judge)
+        judge_messages = [
+            {
+                "role": "system",
+                "content": "You are an expert evaluator assessing the quality of answers. Evaluate the generated answer by comparing it to the reference answer. Only give 5/5 scores for perfect answers.",
+            },
+            {
+                "role": "user",
+                "content": f"""Question:
+{test.question}
+
+Generated Answer:
+{generated_answer}
+
+Reference Answer:
+{test.reference_answer}
+
+Please evaluate the generated answer on three dimensions:
+1. Accuracy: How factually correct is it compared to the reference answer? Only give 5/5 scores for perfect answers.
+2. Completeness: How thoroughly does it address all aspects of the question, covering all the information from the reference answer?
+3. Relevance: How well does it directly answer the specific question asked, giving no additional information?
+
+Provide detailed feedback and scores from 1 (very poor) to 5 (ideal) for each dimension. If the answer is wrong, then the accuracy score must be 1.""",
+            },
+        ]
+        
+        judge_response = completion(model=MODEL, messages=judge_messages, response_format=AnswerEval)
+        answer_eval = AnswerEval.model_validate_json(judge_response.choices[0].message.content)
+        
+        # 5. Compile Unified Results
+        results.append({
+            "category": test.category,
+            "mrr": avg_mrr,
+            "ndcg": avg_ndcg,
+            "keyword_coverage": keyword_coverage,
+            "accuracy": answer_eval.accuracy,
+            "completeness": answer_eval.completeness,
+            "relevance": answer_eval.relevance,
+        })
+        
+    return results
 
 
 if __name__ == "__main__":
