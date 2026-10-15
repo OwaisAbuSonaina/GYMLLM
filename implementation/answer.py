@@ -13,7 +13,7 @@ MODEL = "gpt-4.1-mini"
 DB_NAME = str(Path(__file__).parent.parent / "vector_db")
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
-RETRIEVAL_K = 10
+RETRIEVAL_K = 13
 
 SYSTEM_PROMPT = """
 You are the internal HR assistant for "The Yard" gym. 
