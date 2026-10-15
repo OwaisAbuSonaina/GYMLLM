@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from litellm import completion
 from dotenv import load_dotenv
 
-from evaluation.test import TestQuestion, load_tests
+from evaluation.test import TestQuestion, load_tests, TEST_FILE
 from implementation.answer import answer_question, fetch_context
 
 load_dotenv(override=True)
@@ -182,7 +182,7 @@ def evaluate_all_answers():
 def run_cli_evaluation(test_number: int):
     """Run evaluation for a specific test (async helper for CLI)."""
     # Load tests
-    tests = load_tests("tests.jsonl")
+    tests = load_tests(TEST_FILE)
 
     if test_number < 0 or test_number >= len(tests):
         print(f"Error: test_row_number must be between 0 and {len(tests) - 1}")
