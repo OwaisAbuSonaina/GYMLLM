@@ -8,7 +8,7 @@ load_dotenv(override=True)
 openai_api_key = os.getenv("OPENAI_API_KEY")
 gemini_api_key = os.getenv("GOOGLE_API_KEY")
 
-OPENAI_MODEL = "gpt-4.1-mini"
+OPENAI_MODEL = "gpt-4.1-nano"
 GEMINI_MODEL = "gemini-3.8-flash"
 LLAMA_MODEL = "llama3.2"
 
