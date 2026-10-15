@@ -1,7 +1,6 @@
 from pathlib import Path
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage, HumanMessage, convert_to_messages
 from langchain_core.documents import Document
 
@@ -10,16 +9,16 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-MODEL = "gpt-4.1-nano"
+MODEL = "gpt-4.1-mini"
 DB_NAME = str(Path(__file__).parent.parent / "vector_db")
 
-# embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
 RETRIEVAL_K = 10
 
 SYSTEM_PROMPT = """
-You are a knowledgeable, friendly assistant representing the company Insurellm.
-You are chatting with a user about Insurellm.
+You are a knowledgeable, friendly assistant designed to help an HQ HR team in a big well-known GYM called (The Yard).
+You are chatting with one of the HQ HR team members about The Yard.
+You should give brief, useful, and straightforward answers with all the information needed to help them with one of their daily tasks.
 If relevant, use the given context to answer any question.
 If you don't know the answer, say so.
 Context:
