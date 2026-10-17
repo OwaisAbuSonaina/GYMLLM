@@ -64,9 +64,9 @@ async def answer_question(question: str, history: list[dict] = []) -> tuple[str,
     messages.extend(convert_to_messages(history))
     messages.append(HumanMessage(content=question))
     
-    response = await llm.ainvoke(messages)
-
-    return response.content, docs
+    async for chunk in llm.astream(messages):
+        if chunk.content:
+            yield chunk.content
 
 def answer_question_sync(question: str, history: list[dict] = []) -> tuple[str, list]:
     """Synchronous wrapper for local CLI scripts or evaluation runs."""
