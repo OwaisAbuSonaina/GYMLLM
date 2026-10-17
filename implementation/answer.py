@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.messages import SystemMessage, HumanMessage, convert_to_messages
 from langchain_core.documents import Document
-
+import asyncio
 from dotenv import load_dotenv
 
 
@@ -49,16 +49,25 @@ def combined_question(question: str, history: list[dict] = []) -> str:
     return prior + "\n" + question
 
 
-def answer_question(question: str, history: list[dict] = []) -> tuple[str, list[Document]]:
+async def answer_question(question: str, history: list[dict] = []) -> tuple[str, list[Document]]:
     """
-    Answer the given question with RAG; return the answer and the context documents.
+    Answer the given question with RAG asynchronously.    
     """
     combined = combined_question(question, history)
-    docs = fetch_context(combined)
+    
+    docs = await fetch_context(combined)
+    
     context = "\n\n".join(doc.page_content for doc in docs)
     system_prompt = SYSTEM_PROMPT.format(context=context)
+    
     messages = [SystemMessage(content=system_prompt)]
     messages.extend(convert_to_messages(history))
     messages.append(HumanMessage(content=question))
-    response = llm.invoke(messages)
+    
+    response = await llm.ainvoke(messages)
+
     return response.content, docs
+
+def answer_question_sync(question: str, history: list[dict] = []) -> tuple[str, list]:
+    """Synchronous wrapper for local CLI scripts or evaluation runs."""
+    return asyncio.run(answer_question(question, history))
