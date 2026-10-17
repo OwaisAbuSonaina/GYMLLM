@@ -13,7 +13,7 @@ MODEL = "gpt-4.1-mini"
 DB_NAME = str(Path(__file__).parent.parent / "vector_db")
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
-RETRIEVAL_K = 13
+RETRIEVAL_K = 5
 
 SYSTEM_PROMPT = """
 You are the internal HR assistant for "The Yard" gym. 
@@ -30,7 +30,7 @@ Context:
 """
 
 vectorstore = Chroma(persist_directory=DB_NAME, embedding_function=embeddings)
-retriever = vectorstore.as_retriever()
+retriever = vectorstore.as_retriever(search_kwargs={"k": RETRIEVAL_K})
 llm = ChatOpenAI(temperature=0, model_name=MODEL)
 
 
@@ -38,7 +38,7 @@ async def fetch_context(question: str) -> list[Document]:
     """
     Retrieve relevant context documents for a question asynchronously.
     """
-    return await retriever.ainvoke(question, k=RETRIEVAL_K)
+    return await retriever.ainvoke(question)
 
 
 def combined_question(question: str, history: list[dict] = []) -> str:
