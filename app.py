@@ -11,6 +11,19 @@ class HRRequest(BaseModel):
     hr_question: str
     history: List[Dict[str, str]] = []
 
+@app.get("/", tags=["Health"])
+async def root():
+    return {
+        "status": "healthy",
+        "service": "GYMLLM API",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "redoc": "/redoc",
+        "endpoints": {
+            "query": "POST /GYMLLM"
+        }
+    }
+
 @app.post("/GYMLLM")
 async def gymllm_answer(request: HRRequest):
     async def generate():
@@ -20,7 +33,7 @@ async def gymllm_answer(request: HRRequest):
                 history=request.history
             ):
                 yield token
-                
+
         except Exception as e:
             yield f"Error: {str(e)}"
 
