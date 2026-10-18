@@ -1,9 +1,8 @@
-import os
 import httpx
 import gradio as gr
+from client import GYMLLM_API_URL
 
 # Backend FastAPI URL (configurable via env var for Docker Compose)
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/GYMLLM")
 
 # Client-side JavaScript to toggle Dark/Light mode reliably
 TOGGLE_THEME_JS = """
@@ -73,7 +72,7 @@ async def stream_chat(message: str, history: list):
     bot_reply = ""
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
-            async with client.stream("POST", API_URL, json=payload) as response:
+            async with client.stream("POST", GYMLLM_API_URL, json=payload) as response:
                 if response.status_code != 200:
                     yield f"⚠️ API Error ({response.status_code}): Unable to process query."
                     return
