@@ -1,10 +1,12 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-cache
+
+RUN uv sync --python 3.12 --frozen --no-cache
 
 COPY . .
 
