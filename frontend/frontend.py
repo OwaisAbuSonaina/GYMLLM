@@ -186,4 +186,7 @@ with gr.Blocks(theme=theme, css=CUSTOM_CSS, title="The Yard | HQ HR Assistant") 
 
 if __name__ == "__main__":
     demo.queue()
+    print("\n" + "=" * 50, flush=True)
+    print("🚀 Gradio UI running at: http://localhost:7860", flush=True)
+    print("=" * 50 + "\n", flush=True)
     demo.launch(server_name="0.0.0.0", server_port=7860, inbrowser=True)

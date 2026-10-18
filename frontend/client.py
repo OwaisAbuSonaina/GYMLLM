@@ -16,4 +16,5 @@ openai_client = OpenAI()
 gemini_client = OpenAI(base_url="https://generativelanguage.googleapis.com/v1beta/openai/", api_key=gemini_api_key)
 llama_client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
 
-GYMLLM_API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/GYMLLM")
+base_url = os.getenv("BACKEND_URL", "http://backend:8000")
+GYMLLM_API_URL = f"{base_url}/GYMLLM"
