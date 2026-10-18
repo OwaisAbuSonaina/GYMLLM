@@ -3,12 +3,16 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     restart: always
 
   frontend:
     build: ./frontend
     ports:
       - "7860:7860"
+    env_file:
+      - .env
     environment:
       - BACKEND_URL=http://backend:8000
     depends_on:
