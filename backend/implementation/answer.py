@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 MODEL = "gpt-4.1-mini"
-DB_NAME = str(Path(__file__).parent.parent / "vector_db")
+DB_NAME = str(Path(__file__).resolve().parent.parent / "vector_db")
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
 RETRIEVAL_K = 5
