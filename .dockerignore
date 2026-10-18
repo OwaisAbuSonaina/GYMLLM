@@ -5,8 +5,10 @@ venv/
 
 # Python Bytecode & Cache
 __pycache__/
+__pycache__
 *.py[cod]
 *$py.class
+*.pyc
 
 # Testing & Linting Tools
 .pytest_cache/
