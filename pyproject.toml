@@ -42,3 +42,9 @@ dependencies = [
     "uvicorn[standard]>=0.53.0",
     "faker>=40.43.0",
 ]
+
+[tool.uv.workspace]
+exclude = [
+    "backend",
+    "frontend",
+]
