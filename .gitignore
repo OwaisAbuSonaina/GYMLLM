@@ -28,3 +28,7 @@ tests/
 vector_db/
 experiments/
 Notes/
+
+# Docker / Compose overrides & logs
+docker-compose.override.yml
+*.log
