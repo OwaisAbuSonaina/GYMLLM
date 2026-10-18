@@ -135,7 +135,7 @@ with gr.Blocks(theme=theme, css=CUSTOM_CSS, title="The Yard | HQ HR Assistant") 
         examples=[
             "Describe the maximum permitted workweek and daily working hours for operational staff",
             "Who is the current branch manager of Khalda branch?",
-            "Summarize the Termination Protocol of The Yard."
+            "How does The Yard - Aqaba ensure compliance with Jordanian Labor Law regarding employee working hours across its three defined shifts?"
         ],
         inputs=msg_input,
         label="Quick Inquiries"
